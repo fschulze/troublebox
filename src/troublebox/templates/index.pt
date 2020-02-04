@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>troublebox</title>
+</head>
+<body>
+    <header><h1>troublebox</h1></header>
+    <main>
+        <div tal:repeat="event events">
+            ${event.id} ${event.event_id}
+        </div>
+    </main>
+</body>
+</html>

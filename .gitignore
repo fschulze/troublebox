@@ -1,0 +1,6 @@
+/.tox/
+/bin/
+/dist/
+/include/
+/lib/
+/troublebox.sqlite

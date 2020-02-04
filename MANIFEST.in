@@ -1,0 +1,2 @@
+include *.ini LICENSE
+recursive-include src/troublebox *.pt
