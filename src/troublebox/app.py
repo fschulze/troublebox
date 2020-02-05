@@ -1,5 +1,6 @@
 from .models import Event
-from json import loads
+from json import dumps, loads
+from pprint import pformat
 from pyramid.response import Response
 from sqlalchemy import sql
 import gzip
@@ -28,21 +29,66 @@ def api_store_view(request):
     return Response('OK')
 
 
+def get_event_infos(event):
+    if event is None:
+        return None
+    infos = dict(
+        data=event.data,
+        event_id=event.event_id,
+        id=event.id,
+        project=event.project)
+    timestamp = event.data.get('timestamp')
+    if isinstance(timestamp, str):
+        timestamp = ' '.join(reversed(timestamp.split('T')))
+    if timestamp:
+        infos['timestamp'] = timestamp
+    return infos
+
+
+def event_view(request):
+    project = int(request.matchdict['project'])
+    event_id = request.matchdict['event_id']
+    event = (
+        request.dbsession.query(Event)
+        .filter_by(project=project, event_id=event_id))
+    return dict(
+        dumps=dumps,
+        event=get_event_infos(event.one_or_none()),
+        pformat=pformat)
+
+
 def index_view(request):
     events = (
         request.dbsession.query(Event)
-        .order_by(sql.desc(Event.id))
-        .limit(5))
+        .order_by(sql.desc(Event.id)))
+    project = None
+    if 'project' in request.matchdict:
+        project = int(request.matchdict['project'])
+        events = events.filter_by(project=project)
+    events = events.limit(25)
     return dict(
-        events=events.all())
+        dumps=dumps,
+        events=[get_event_infos(e) for e in events.all()],
+        pformat=pformat,
+        project=project)
 
 
 def includeme(config):
     config.include('pyramid_chameleon')
     config.add_route('index', '/')
+    config.add_route('project', '/{project:\\d+}')
+    config.add_route('event', '/{project:\\d+}/{event_id}')
     config.add_view(
         index_view,
         route_name='index',
         renderer="troublebox:templates/index.pt")
+    config.add_view(
+        index_view,
+        route_name='project',
+        renderer="troublebox:templates/index.pt")
+    config.add_view(
+        event_view,
+        route_name='event',
+        renderer="troublebox:templates/event.pt")
     config.add_route('api_store', '/api/{project:\\d+}/store/')
     config.add_view(api_store_view, route_name='api_store')

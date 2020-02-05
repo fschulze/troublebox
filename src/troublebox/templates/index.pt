@@ -4,13 +4,71 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>troublebox</title>
+    <style>
+        table th {
+            text-align: left;
+        }
+        table tr td {
+            vertical-align: top;
+        }
+        dl dt {
+            font-weight: bold;
+        }
+        pre {
+            margin: 0;
+        }
+    </style>
 </head>
 <body>
     <header><h1>troublebox</h1></header>
+    <nav tal:condition="project">
+        <a href="${request.route_url('index')}">Back to index</a>
+    </nav>
     <main>
-        <div tal:repeat="event events">
-            ${event.id} ${event.event_id}
-        </div>
+        <table>
+            <thead>
+                <th>ID</th>
+                <th tal:condition="not project">Project</th>
+                <th>Event</th>
+                <th>Level</th>
+                <th>Infos</th>
+            </thead>
+            <tbody>
+                <tr tal:repeat="event events">
+                    <td>
+                        ${event.get('timestamp', '')}
+                        (${event.id})
+                    </td>
+                    <td tal:condition="not project">
+                        <a href="${request.route_url('project', project=event.project)}">
+                            ${event.project}
+                        </a>
+                    </td>
+                    <td>
+                        <a href="${request.route_url('event', project=event.project, event_id=event.event_id)}">
+                            ${event.event_id}
+                        </a>
+                    </td>
+                    <td>${event.data.get('level', '')}</td>
+                    <td>
+                        <div tal:define="request event.data.get('request', {})"
+                             tal:condition="'url' in request">
+                             <a href="${request.url}">${request.url}</a>
+                        </div>
+                        <div tal:define="exceptions event.data.get('exception', {}).get('values', [])"
+                             tal:condition="exceptions">
+                            <dl tal:repeat="exception exceptions">
+                                <dt>${exception.get('module', '')} ${exception.get('type', '')}</dt>
+                                <dd>${exception.get('value', '')}</dd>
+                            </dl>
+                        </div>
+                        <div tal:condition="event.data.get('logentry')">
+                            <pre>${pformat(event.data['logentry'])}</pre>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </main>
 </body>
 </html>
