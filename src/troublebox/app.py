@@ -59,18 +59,37 @@ def event_view(request):
 
 def index_view(request):
     events = (
-        request.dbsession.query(Event)
-        .order_by(sql.desc(Event.id)))
+        request.dbsession.query(Event))
     project = None
     if 'project' in request.matchdict:
         project = int(request.matchdict['project'])
         events = events.filter_by(project=project)
+    reverse = False
+    if 'end' in request.params:
+        events = events.filter(Event.id >= int(request.params['end']))
+        events = events.order_by(Event.id)
+        reverse = True
+    else:
+        if 'start' in request.params:
+            events = events.filter(Event.id <= int(request.params['start']))
+        events = events.order_by(sql.desc(Event.id))
     events = events.limit(25)
+    start = None
+    end = None
+    if reverse:
+        events = list(reversed(events.all()))
+    else:
+        events = events.all()
+    if events:
+        start = events[-1].id
+        end = events[0].id
     return dict(
         dumps=dumps,
-        events=[get_event_infos(e) for e in events.all()],
+        events=[get_event_infos(e) for e in events],
         pformat=pformat,
-        project=project)
+        project=project,
+        start=start,
+        end=end)
 
 
 def includeme(config):
