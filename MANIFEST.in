@@ -1,2 +1,4 @@
 include *.ini LICENSE
 recursive-include src/troublebox *.pt
+recursive-include src/troublebox/alembic *.py
+global-exclude *.pyc
