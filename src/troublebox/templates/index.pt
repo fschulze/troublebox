@@ -45,12 +45,12 @@
                         ${event.get('timestamp', '')}
                         (${event.id})
                     </td>
-                    <td tal:condition="not project">
+                    <td class="project" tal:condition="not project">
                         <a href="${request.route_url('project', project=event.project)}">
                             ${event.project_title}
                         </a>
                     </td>
-                    <td>
+                    <td class="event">
                         <a href="${request.route_url('event', project=event.project, event_id=event.event_id)}">
                             ${event.event_id}
                         </a>

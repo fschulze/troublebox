@@ -82,7 +82,7 @@ def sentry_sdk_client(sentry_url):
 def test_raven_capture_message(sentry_raven_client, testapp):
     event_id = sentry_raven_client.captureMessage("foo")
     result = testapp.get('/')
-    (item,) = result.html.select('div')
+    (item,) = result.html.select('td.event a')
     assert event_id in item.text
 
 
@@ -91,5 +91,5 @@ def test_sdk_capture_event(sentry_sdk_client, testapp):
         {"message": "foo", "level": "info"})
     sentry_sdk_client.transport._worker.flush(1)
     result = testapp.get('/')
-    (item,) = result.html.select('div')
+    (item,) = result.html.select('td.event a')
     assert event_id in item.text
