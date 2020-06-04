@@ -10,6 +10,48 @@
         }
         pre {
             background: #f5f5f5;
+            padding: 1px;
+            margin-top: 0;
+        }
+        table pre,
+        dl.frame pre {
+            padding: 1px;
+            margin: 0;
+        }
+        dl.frame dt {
+            font-weight: normal;
+        }
+        dl.frame dt code {
+            font-weight: bold;
+        }
+        .toggleable {
+            display: none;
+        }
+        table th {
+            vertical-align: top;
+            font-weight: bold;
+        }
+        table td {
+            vertical-align: top;
+        }
+        input.togglecontrol {
+            display: none;
+        }
+        input.togglecontrol + label .toggler::before {
+            display: inline-block;
+            text-align: center;
+            border: 1px dotted black;
+            content: '+';
+            padding: 1px 1px;
+            margin-left: .5em;
+            min-width: 1em;
+            min-height: 1em;
+        }
+        input.togglecontrol:checked + label .toggler::before {
+            content: '-';
+        }
+        input.togglecontrol:checked + label + .toggleable {
+            display: block;
         }
     </style>
 </head>
@@ -20,17 +62,12 @@
         <a href="${request.route_url('project', project=event.project)}">Back to overview</a>
     </nav>
     <main>
-        <h1>${event.event_id}</h1>
+        <p>${event.timestamp}</p>
         <dl>
-            <tal:items repeat="(key, value) sorted(event.data.items())">
-                <dt>${key.title()}</dt>
-                <tal:exception_values condition="key == 'exception' and 'values' in value">
-                    <dd tal:define="exc_values value.pop('values')" tal:repeat="exc exc_values">
-                        <pre>${pformat(exc)}</pre>
-                    </dd>
-                </tal:exception_values>
-                <dd tal:condition="value and isinstance(value, (dict, list))"><pre>${pformat(value)}</pre></dd>
-                <dd tal:condition="value and not isinstance(value, (dict, list))">${value}</dd>
+            <tal:items repeat="item event.iter_items()">
+                <input tal:condition="item.toggle" type="checkbox" tal:attributes="checked 'checked' if not item.toggled else None" id="itemtoggle${id(item)}" class="togglecontrol">
+                <label tal:omit-tag="not item.toggle" for="itemtoggle${id(item)}"><dt>${item.title}<span class="toggler"></span></dt></label>
+                <dd tal:attributes="class 'toggleable' if item.toggle else None">${item.value}</dd>
             </tal:items>
         </dl>
     </main>
