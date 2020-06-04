@@ -76,5 +76,14 @@
             </tbody>
         </table>
     </main>
+    <nav>
+        <div tal:condition="project">
+            <a href="${request.route_url('index')}">Back to index</a>
+        </div>
+        <div>
+            <a tal:condition="end is not None" href="${request.current_route_url(_query=dict(end=end))}">Previous Events</a>
+            <a tal:condition="start is not None" href="${request.current_route_url(_query=dict(start=start))}">Next Events</a>
+        </div>
+    </nav>
 </body>
 </html>
