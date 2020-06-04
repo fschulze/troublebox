@@ -5,6 +5,7 @@ from lazy import lazy
 from json import dumps, loads
 from pprint import pformat
 from pyramid.compat import urlparse
+from pyramid.httpexceptions import HTTPNotFound
 from pyramid.response import Response
 from sqlalchemy import sql
 import gzip
@@ -200,10 +201,13 @@ def event_view(request):
     event_id = request.matchdict['event_id']
     event = (
         request.dbsession.query(Event)
-        .filter_by(project=project, event_id=event_id))
+        .filter_by(project=project, event_id=event_id)
+        .one_or_none())
+    if event is None:
+        raise HTTPNotFound("The event could not be found")
     return dict(
         dumps=dumps,
-        event=EventInfos(event.one_or_none()),
+        event=EventInfos(event),
         pformat=pformat)
 
 
