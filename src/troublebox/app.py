@@ -36,7 +36,8 @@ def get_event_infos(event):
         data=event.data,
         event_id=event.event_id,
         id=event.id,
-        project=event.project)
+        project=event.project,
+        project_title=event.project_title)
     timestamp = event.data.get('timestamp')
     if isinstance(timestamp, str):
         timestamp = ' '.join(reversed(timestamp.split('T')))

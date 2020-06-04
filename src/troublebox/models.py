@@ -1,3 +1,4 @@
+from lazy import lazy
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import JSON
@@ -5,6 +6,7 @@ from sqlalchemy import Unicode
 from sqlalchemy import engine_from_config
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import configure_mappers
+from sqlalchemy.orm import relationship
 from sqlalchemy.orm import sessionmaker
 import zope.sqlalchemy
 
@@ -15,10 +17,27 @@ Base = declarative_base()
 class Event(Base):
     __tablename__ = 'events'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer(), primary_key=True)
     event_id = Column(Unicode(), unique=True)
     project = Column(Integer(), index=True)
+    _project = relationship(
+        "Project",
+        primaryjoin="Event.project == foreign(Project.id)",
+        uselist=False)
     data = Column(JSON())
+
+    @lazy
+    def project_title(self):
+        if self._project and self._project.title:
+            return self._project.title
+        return "(%s)" % self.project
+
+
+class Project(Base):
+    __tablename__ = 'projects'
+
+    id = Column(Integer(), primary_key=True)
+    title = Column(Unicode(), nullable=True)
 
 
 configure_mappers()

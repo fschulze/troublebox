@@ -47,7 +47,7 @@
                     </td>
                     <td tal:condition="not project">
                         <a href="${request.route_url('project', project=event.project)}">
-                            ${event.project}
+                            ${event.project_title}
                         </a>
                     </td>
                     <td>
